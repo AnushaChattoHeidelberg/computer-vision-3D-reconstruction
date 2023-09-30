@@ -49,16 +49,16 @@ class VanishingPointDSAC:
 	
 	def _linedetection_(self,edges):
 		lines = probabilistic_hough_line(edges, threshold=10, line_length=5, line_gap=3)
-
 		return lines
 	
 	def _valuecalc__(self,img,edges,lines):
+		pass
+
+	def _accumation_(self,img,edges,lines):
 		height, width = img.shape
 		accumulation_matrix = np.zeros((height, width), dtype=int)
 		return accumulation_matrix
-
-	def _accumation_(self,img,edges,):
-		pass
+		
 	
 	def _search_(self,img,edges):
 		pass
