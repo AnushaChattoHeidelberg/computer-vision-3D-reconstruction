@@ -8,6 +8,10 @@ import matplotlib.pyplot as plt
 import skimage.io
 import skimage.color
 import skimage.exposure
+from skimage import feature, measure
+from skimage.draw import line
+from skimage.transform import probabilistic_hough_line
+from scipy.spatial import distance
 
 import time
 import math
@@ -38,6 +42,26 @@ class VanishingPointDSAC:
 	def _greyscale_(self,img):
 		grey_img = skimage.color.rgb2gray(img)
 		return grey_img
+	
+	def _edgedetection_(self,img):
+		edges = feature.canny(img, sigma=3)
+		return edges
+	
+	def _linedetection_(self,edges):
+		lines = probabilistic_hough_line(edges, threshold=10, line_length=5, line_gap=3)
+
+		return lines
+	
+	def _valuecalc__(self,img,edges,lines):
+		height, width = img.shape
+		accumulation_matrix = np.zeros((height, width), dtype=int)
+		return accumulation_matrix
+
+	def _accumation_(self,img,edges,):
+		pass
+	
+	def _search_(self,img,edges):
+		pass
 
 	def _sample_hyp(self,img):
 		'''
