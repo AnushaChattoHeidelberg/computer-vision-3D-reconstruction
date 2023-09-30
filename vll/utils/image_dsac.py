@@ -50,15 +50,34 @@ class VanishingPointDSAC:
 	def _linedetection_(self,edges):
 		lines = probabilistic_hough_line(edges, threshold=10, line_length=5, line_gap=3)
 		return lines
-	
-	def _valuecalc__(self,img,edges,lines):
-		pass
 
 	def _accumation_(self,img,edges,lines):
 		height, width = img.shape
 		accumulation_matrix = np.zeros((height, width), dtype=int)
+		for i in range(len(lines)):
+			for j in range(i + 1, len(lines)):
+				line1 = lines[i]
+				line2 = lines[j]
+				
+				# Calculate the intersection point of two lines
+				intersection_x = ((line1[0][0] * line1[1][1] - line1[0][1] * line1[1][0]) * (line2[0][0] - line2[1][0]) -
+								(line1[0][0] - line1[1][0]) * (line2[0][0] * line2[1][1] - line2[0][1] * line2[1][0])) / \
+								((line1[0][0] - line1[1][0]) * (line2[0][1] - line2[1][1]) -
+								(line1[0][1] - line1[1][1]) * (line2[0][0] - line2[1][0]))
+				
+				intersection_y = ((line1[0][0] * line1[1][1] - line1[0][1] * line1[1][0]) * (line2[0][1] - line2[1][1]) -
+								(line1[0][1] - line1[1][1]) * (line2[0][0] * line2[1][1] - line2[0][1] * line2[1][0])) / \
+								((line1[0][0] - line1[1][0]) * (line2[0][1] - line2[1][1]) -
+								(line1[0][1] - line1[1][1]) * (line2[0][0] - line2[1][0]))
+				
+				# Check if the intersection point is within the image bounds
+				if 0 <= intersection_x < width and 0 <= intersection_y < height:
+					# Increment the corresponding cell in the accumulation matrix
+					accumulation_matrix[int(intersection_y), int(intersection_x)] += 1
 		return accumulation_matrix
-		
+	
+	def _valuecalc__(self,img,edges,lines,accumulation_matrix):
+		pass
 	
 	def _search_(self,img,edges):
 		pass
