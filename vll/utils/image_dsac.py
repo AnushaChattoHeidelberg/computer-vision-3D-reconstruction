@@ -46,7 +46,7 @@ class VanishingPointDSAC:
 	def _edgedetection_(self,img):
 		edges = feature.canny(img, sigma=3)
 		return edges
-	
+	'''
 	def _linedetection_(self,edges):
 		lines = probabilistic_hough_line(edges, threshold=10, line_length=5, line_gap=3)
 		return lines
@@ -75,6 +75,71 @@ class VanishingPointDSAC:
 					# Increment the corresponding cell in the accumulation matrix
 					accumulation_matrix[int(intersection_y), int(intersection_x)] += 1
 		return accumulation_matrix
+	'''
+	def calculate_distance_between_line_segments(line1, line2):
+    # Define the endpoints of the line segments as (x1, y1) and (x2, y2)
+		x1, y1 = line1[0]
+		x2, y2 = line1[1]
+		x3, y3 = line2[0]
+		x4, y4 = line2[1]
+
+    # Calculate the direction vectors of the lines
+		line1_direction = np.array([x2 - x1, y2 - y1])
+		line2_direction = np.array([x4 - x3, y4 - y3])
+
+    # Calculate the vector between the starting points of the lines
+		start_vector = np.array([x3 - x1, y3 - y1])
+
+    # Calculate the cross product of the direction vectors
+		cross_product = np.cross(line1_direction, line2_direction)
+
+    # Check if the lines are parallel (cross_product is zero)
+		if np.abs(cross_product) < 1e-8:
+        # Lines are parallel, return the minimum distance between their endpoints
+			distances = [
+            np.linalg.norm(start_vector),
+            np.linalg.norm(np.array([x4 - x1, y4 - y1])),
+            np.linalg.norm(np.array([x3 - x2, y3 - y2])),
+            np.linalg.norm(np.array([x4 - x2, y4 - y2]))
+        ]
+			return min(distances)
+
+    # Calculate the distance between the lines (assuming they are not parallel)
+		distance = abs(np.dot(start_vector, cross_product) / np.linalg.norm(cross_product))
+		return distance
+
+
+
+	def _linedetection_(self,edges):
+		contours = measure.find_contours(edges, level=0.8, fully_connected='low')
+		min_line_length = 50
+		# List to store line segments
+		line_segments = []
+
+		# Iterate through the detected contours
+		for contour in contours:
+    		# Approximate the contour with a polygon (line segments)
+			epsilon = 0.02 * measure.perimeter(contour)
+			approx_polygon = measure.approximate_polygon(contour, epsilon=epsilon)
+
+    		# Check if the polygon (line segment) is long enough
+			if len(approx_polygon) >= 2 and measure.perimeter(contour) >= min_line_length:
+        	# Append the line segment to the list
+				line_segments.append(approx_polygon)
+
+		distances_between_segments = []
+		for i in range(len(line_segments)):
+			for j in range(i + 1, len(line_segments)):
+				line1 = line_segments[i]
+				line2 = line_segments[j]
+
+        # Calculate the distance between line segments (assuming they are not parallel)
+		distance = self.calculate_distance_between_line_segments(line1, line2)
+		distances_between_segments.append((i, j, distance))  # Store the distance and indices of line segments
+
+		return line_segments, distances_between_segments
+	
+
 	
 	def _valuecalc__(self,img,edges,lines,accumulation_matrix):
 		pass
