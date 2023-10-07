@@ -108,7 +108,27 @@ class VanishingPointDSAC:
 		distance = abs(np.dot(start_vector, cross_product) / np.linalg.norm(cross_product))
 		return distance
 
+	def calculate_intersection_between_line_segments(line1, line2):
+    # Extract endpoints of the first line segment
+		x1, y1 = line1[0]
+		x2, y2 = line1[1]
 
+		# Extract endpoints of the second line segment
+		x3, y3 = line2[0]
+		x4, y4 = line2[1]
+
+		# Calculate the determinant of the coefficient matrix
+		determinant = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
+
+		# Check if the lines are parallel (determinant is close to zero)
+		if abs(determinant) < 1e-8:
+				return None  # Lines are parallel and do not intersect
+
+		# Calculate the intersection point coordinates
+		intersection_x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / determinant
+		intersection_y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / determinant
+
+		return (intersection_x, intersection_y)
 
 	def _linedetection_(self,edges):
 		contours = measure.find_contours(edges, level=0.8, fully_connected='low')
