@@ -159,9 +159,24 @@ class VanishingPointDSAC:
 
 		return line_segments, distances_between_segments
 	
+	def _accumation_(self,img,lines):
+		height, width = img.shape
+		accumulation_matrix = np.zeros((height, width), dtype=int)
+		for i in range(len(lines)):
+			for j in range(i + 1, len(lines)):
+				line1 = lines[i]
+				line2 = lines[j]
+				intersect = self.calculate_intersection_between_line_segments(line1, line2)
+				# Check if the intersection point is within the image bounds
+				if 0 <= intersect.intersection_x < width and 0 <= intersect.intersection_y < height:
+					# Increment the corresponding cell in the accumulation matrix
+					accumulation_matrix[int(intersect.intersection_y), int(intersect.intersection_x)] += 1
+		return accumulation_matrix
+		
 
 	
-	def _valuecalc__(self,img,edges,lines,accumulation_matrix):
+	def _valuecalc__(self,img,edges,lines,distances,accumulation_matrix):
+		
 		pass
 	
 	def _search_(self,img,edges):
