@@ -46,36 +46,7 @@ class VanishingPointDSAC:
 	def _edgedetection_(self,img):
 		edges = feature.canny(img, sigma=3)
 		return edges
-	'''
-	def _linedetection_(self,edges):
-		lines = probabilistic_hough_line(edges, threshold=10, line_length=5, line_gap=3)
-		return lines
 
-	def _accumation_(self,img,edges,lines):
-		height, width = img.shape
-		accumulation_matrix = np.zeros((height, width), dtype=int)
-		for i in range(len(lines)):
-			for j in range(i + 1, len(lines)):
-				line1 = lines[i]
-				line2 = lines[j]
-				
-				# Calculate the intersection point of two lines
-				intersection_x = ((line1[0][0] * line1[1][1] - line1[0][1] * line1[1][0]) * (line2[0][0] - line2[1][0]) -
-								(line1[0][0] - line1[1][0]) * (line2[0][0] * line2[1][1] - line2[0][1] * line2[1][0])) / \
-								((line1[0][0] - line1[1][0]) * (line2[0][1] - line2[1][1]) -
-								(line1[0][1] - line1[1][1]) * (line2[0][0] - line2[1][0]))
-				
-				intersection_y = ((line1[0][0] * line1[1][1] - line1[0][1] * line1[1][0]) * (line2[0][1] - line2[1][1]) -
-								(line1[0][1] - line1[1][1]) * (line2[0][0] * line2[1][1] - line2[0][1] * line2[1][0])) / \
-								((line1[0][0] - line1[1][0]) * (line2[0][1] - line2[1][1]) -
-								(line1[0][1] - line1[1][1]) * (line2[0][0] - line2[1][0]))
-				
-				# Check if the intersection point is within the image bounds
-				if 0 <= intersection_x < width and 0 <= intersection_y < height:
-					# Increment the corresponding cell in the accumulation matrix
-					accumulation_matrix[int(intersection_y), int(intersection_x)] += 1
-		return accumulation_matrix
-	'''
 	def calculate_distance_between_line_segments(line1, line2):
     # Define the endpoints of the line segments as (x1, y1) and (x2, y2)
 		x1, y1 = line1[0]
@@ -172,44 +143,39 @@ class VanishingPointDSAC:
 					# Increment the corresponding cell in the accumulation matrix
 					accumulation_matrix[int(intersect.intersection_y), int(intersect.intersection_x)] += 1
 		return accumulation_matrix
-		
-
 	
-	def _valuecalc__(self,img,edges,lines,distances,accumulation_matrix):
+
+	def _valuecalc__(self, img, edges, lines, distances, accumulation_matrix):
 		height, width = img.shape
-		#create a distance matrix
-		distance_matrix = np.empty((height, width))
+		max_length = math.sqrt(width ** 2 + height ** 2)
+		w1, w2, ta = 0.1, 0.1, 0.1
+
+		# Calculate distances between line segments and potential vanishing points outside the loop
+		distance_matrix = np.empty((height, width), dtype=object)
 		for i in range(width):
 			for j in range(height):
 				if accumulation_matrix[j, i] > 0:
-					distance_between_segment_and_vp = []
-					line2 = [(), ()]
-					#so I don't have to write another function I decide that the endpoints of line2 are the same
-					# Assign coordinates to index 0 (i, j)
-					line2[0] = (j, i)
-					# Assign coordinates to index 1 (i, j)
-					line2[1] = (j, i)
-					for k in range(len(lines)):
-						distance=self.calculate_distance_between_line_segments(lines[k], line2)
-						distance_between_segment_and_vp.append(distance)
-					#storing the distance array in the distance matrix for each line in the cell for a potential vanishing point
-					distance_matrix[j,i]=distance_between_segment_and_vp
-				else: distance_matrix[j,i] = []
-		#create a vote matrix
-		vote_matrix= np.empty((height, width))
+					distance_matrix[j, i] = [self.calculate_distance_between_line_segments(lines[k], ((j, i), (j, i))) for k in range(len(lines))]
+				else:
+					distance_matrix[j, i] = []
+
+		# Calculate votes and fill the vote_matrix
+		vote_matrix = np.zeros((height, width))
 		for i in range(width):
 			for j in range(height):
-				if distance_matrix[j, i] != []:
-					votes = 0
-					for k in range(len(lines)):
-						#picking out the distance between a line and a point in the accumulation matrix
-						distance = distance_matrix[j,i][k]
-						#vote function to write vote function here
-						vote = 1
-						
-						votes += vote
-					distance_matrix[j,i] = votes
-					
+				distances_to_vp = distance_matrix[j, i]
+				if distances_to_vp:
+					votes = sum(
+						w1 * (1 - (distance / ta)) + w2 * (length / max_length)
+						for distance, (length, _) in zip(distances_to_vp, lines)
+					)
+					vote_matrix[j, i] = votes
+
+		return vote_matrix
+
+		
+
+			
 		
 	
 	def _search_(self,img,edges):
