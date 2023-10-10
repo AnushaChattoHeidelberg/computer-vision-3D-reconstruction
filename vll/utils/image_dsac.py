@@ -173,11 +173,6 @@ class VanishingPointDSAC:
 
 		return vote_matrix
 
-		
-
-			
-		
-	
 	def _search_(self,img,edges):
 		pass
 
