@@ -173,7 +173,32 @@ class VanishingPointDSAC:
 
 		return vote_matrix
 
-	def _search_(self,img,edges):
+	def _search_(self,img,edges,vote_matrix):
+		# Find the maximum value and its indices in the matrix
+		max_value = np.max(vote_matrix)
+		max_indices = np.argwhere(vote_matrix == max_value)
+		max_indices = [tuple(idx) for idx in max_indices]
+
+		# Initialize a flag to keep track of the first max index
+		found_first_max = False
+
+		# Create a list of valid indices and store the first max index
+		valid_indices = []
+		first_max_index = None
+
+		for i in range(vote_matrix.shape[0]):
+			for j in range(vote_matrix.shape[1]):
+				if vote_matrix[i, j] == max_value and not found_first_max:
+					found_first_max = True
+					first_max_index = (i, j)
+				elif vote_matrix[i, j] != 0:
+					valid_indices.append((i, j))
+
+		random_indices = random.sample(valid_indices, 2)
+
+		#choosing the vanishing points:
+		a1= first_max_index
+		ai,aj=random_indices
 		pass
 
 	def _sample_hyp(self,img):
