@@ -178,7 +178,10 @@ class VanishingPointDSAC:
 
 		return vote_matrix
 	
-	def _vanishing_line_criterion_(a1,ai,aj):
+	def _vanishing_line_criterion_(ai,aj):
+
+		pass
+	def orthoganality_camera_criterion(a1,ai,aj):
 		
 		pass
 
