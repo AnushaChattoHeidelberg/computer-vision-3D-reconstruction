@@ -147,6 +147,12 @@ class VanishingPointDSAC:
 	def calculate_length(point1, point2):
     # Calculate the Euclidean distance between two points
 		return np.linalg.norm(np.array(point1) - np.array(point2))
+	
+	def calculate_angle(point1, point2):
+    # Calculate the angle in degrees between two points with respect to the x-axis
+		dx, dy = np.array(point2) - np.array(point1)
+		angle_degrees = np.degrees(np.arctan2(dy, dx))
+		return angle_degrees
 
 	def _valuecalc__(self, img, edges, lines, distances, accumulation_matrix):
 		height, width = img.shape
@@ -178,11 +184,26 @@ class VanishingPointDSAC:
 
 		return vote_matrix
 	
-	def _vanishing_line_criterion_(ai,aj):
 
-		pass
-	def orthoganality_camera_criterion(a1,ai,aj):
+	# Helper function to calculate the distance and angle between two points
+	def calculate_distance_and_angle(self,point1, point2):
+		distance=self.calculate_length(point1,point2)
+		angle=self.calculate_angle(point1,point2)
+		return distance, angle
+	
+	def _vanishing_line_criterion_(self,ai,aj,td,talpha):
 		
+		# Use the distance function to get distance and angle
+		distance, angle = self.calculate_distance_and_angle(ai, aj)
+			
+		# Check if the distance and angle are below the thresholds
+		if distance < td and angle < talpha:
+			return True  # The vanishing point criterion is fulfilled
+		return False  # The vanishing point criterion is not fulfilled
+		
+
+	def orthoganality_camera_criterion(a1,ai,aj):
+
 		pass
 
 	def _search_(self,img,edges,vote_matrix):
