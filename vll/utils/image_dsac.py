@@ -138,10 +138,12 @@ class VanishingPointDSAC:
 				line1 = lines[i]
 				line2 = lines[j]
 				intersect = self.calculate_intersection_between_line_segments(line1, line2)
+				'''
 				# Check if the intersection point is within the image bounds
 				if 0 <= intersect.intersection_x < width and 0 <= intersect.intersection_y < height:
+				'''
 					# Increment the corresponding cell in the accumulation matrix
-					accumulation_matrix[int(intersect.intersection_y), int(intersect.intersection_x)] += 1
+				accumulation_matrix[int(intersect.intersection_y), int(intersect.intersection_x)] += 1
 		return accumulation_matrix
 	
 	def calculate_length(point1, point2):
@@ -235,7 +237,7 @@ class VanishingPointDSAC:
 		for i in range(tries):
 			random_indices = random.sample(valid_indices, 2)
 			ai,aj=random_indices
-
+ 
 
 
 		pass
