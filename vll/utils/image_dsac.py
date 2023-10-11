@@ -144,11 +144,16 @@ class VanishingPointDSAC:
 					accumulation_matrix[int(intersect.intersection_y), int(intersect.intersection_x)] += 1
 		return accumulation_matrix
 	
+	def calculate_length(point1, point2):
+    # Calculate the Euclidean distance between two points
+		return np.linalg.norm(np.array(point1) - np.array(point2))
 
 	def _valuecalc__(self, img, edges, lines, distances, accumulation_matrix):
 		height, width = img.shape
-		max_length = math.sqrt(width ** 2 + height ** 2)
-		w1, w2, ta = 0.1, 0.1, 0.1
+		#max_length = math.sqrt(width ** 2 + height ** 2)
+		# Set max_length as the maximum line length
+		max_length = max(max([self.calculate_length(p1, p2) for (p1, p2) in line]) for line in lines)
+		w1, w2, ta = 0.3, 0.7, 5
 
 		# Calculate distances between line segments and potential vanishing points outside the loop
 		distance_matrix = np.empty((height, width), dtype=object)
@@ -172,6 +177,10 @@ class VanishingPointDSAC:
 					vote_matrix[j, i] = votes
 
 		return vote_matrix
+	
+	def _vanishing_line_criterion_(a1,ai,aj):
+		
+		pass
 
 	def _search_(self,img,edges,vote_matrix):
 		# Find the maximum value and its indices in the matrix
@@ -186,6 +195,7 @@ class VanishingPointDSAC:
 		valid_indices = []
 		first_max_index = None
 
+		# Making a list of valid indices, excluding ones with vote 0
 		for i in range(vote_matrix.shape[0]):
 			for j in range(vote_matrix.shape[1]):
 				if vote_matrix[i, j] == max_value and not found_first_max:
@@ -194,11 +204,16 @@ class VanishingPointDSAC:
 				elif vote_matrix[i, j] != 0:
 					valid_indices.append((i, j))
 
-		random_indices = random.sample(valid_indices, 2)
-
 		#choosing the vanishing points:
 		a1= first_max_index
-		ai,aj=random_indices
+
+		tries = 1000
+		for i in range(tries):
+			random_indices = random.sample(valid_indices, 2)
+			ai,aj=random_indices
+
+
+
 		pass
 
 	def _sample_hyp(self,img):
