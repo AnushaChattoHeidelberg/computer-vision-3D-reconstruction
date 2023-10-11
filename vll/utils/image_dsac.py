@@ -118,6 +118,7 @@ class VanishingPointDSAC:
         	# Append the line segment to the list
 				line_segments.append(approx_polygon)
 
+		'''
 		distances_between_segments = []
 		for i in range(len(line_segments)):
 			for j in range(i + 1, len(line_segments)):
@@ -128,7 +129,8 @@ class VanishingPointDSAC:
 		distance = self.calculate_distance_between_line_segments(line1, line2)
 		distances_between_segments.append((i, j, distance))  # Store the distance and indices of line segments
 
-		return line_segments, distances_between_segments
+		'''
+		return line_segments
 	
 	def _accumation_(self,img,lines):
 		height, width = img.shape
@@ -224,11 +226,11 @@ class VanishingPointDSAC:
 		# Making a list of valid indices, excluding ones with vote 0
 		for i in range(vote_matrix.shape[0]):
 			for j in range(vote_matrix.shape[1]):
-				if vote_matrix[i, j] == max_value and not found_first_max:
+				if vote_matrix[j, i] == max_value and not found_first_max:
 					found_first_max = True
-					first_max_index = (i, j)
-				elif vote_matrix[i, j] != 0:
-					valid_indices.append((i, j))
+					first_max_index = (j,i)
+				elif vote_matrix[j,i] != 0:
+					valid_indices.append((j,i))
 
 		#choosing the vanishing points:
 		a1= first_max_index
