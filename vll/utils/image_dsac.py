@@ -239,6 +239,7 @@ class VanishingPointDSAC:
 		for i in range(tries):
 			random_indices = random.sample(valid_indices, 2)
 			ai,aj=random_indices
+			
  
 
 
