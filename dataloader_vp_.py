@@ -62,11 +62,7 @@ for root, dirs, files in os.walk(root_directory):
                 for group, lines in groups.items():
                     intersection_point = None
                     for line1, line2 in combinations(lines, 2):
-                        # Implement the intersection calculation here
-                        # You can use math or geometry libraries for this part.
-                        # For example, you can use the `shapely` library to find line intersections.
-
-                        # For illustration purposes, assuming a simple intersection calculation:
+                        
                         x1, y1, x2, y2 = line1[:4]
                         x3, y3, x4, y4 = line2[:4]
                         det = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
