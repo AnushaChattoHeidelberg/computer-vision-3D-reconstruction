@@ -2,9 +2,8 @@ import torch
 
 def prepare_data(inputs, labels, use_gpu):
 	# convert from numpy images to normalized torch arrays
-	inputs = torch.from_numpy(inputs)
-	labels = torch.from_numpy(labels)	
-
+	inputs = torch.tensor(inputs, dtype=torch.float32)
+	labels = torch.tensor(labels, dtype=torch.float32)
 	if use_gpu: inputs = inputs.cuda()
 	inputs.transpose_(1,3).transpose_(2, 3)
 	inputs = inputs - 0.5 # normalization
